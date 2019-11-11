@@ -1,55 +1,70 @@
 import React, { Component } from 'react';
 
 export class FetchData extends Component {
-  displayName = FetchData.name
+    displayName = FetchData.name
 
-  constructor(props) {
-    super(props);
-    this.state = { forecasts: [], loading: true };
+    constructor(props) {
+        super(props);
+        this.state = { matches: [], loading: true };
 
-      fetch('api/MatchData/MatchInfo')
-      .then(response => response.json())
-      .then(data => {
-        this.setState({ forecasts: data, loading: false });
-      });
-  }
+        fetch('api/MatchData/MatchInfo')
+            .then(response => response.json())
+            .then(data => {
+                this.setState({ matches: data, loading: false });
+            });
+    }
 
-  static renderForecastsTable(forecasts) {
-    return (
-      <table className='table'>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Temp. (C)</th>
-            <th>Temp. (F)</th>
-            <th>Summary</th>
-          </tr>
-        </thead>
-        <tbody>
-          {forecasts.map(forecast =>
-            <tr key={forecast.dateFormatted}>
-              <td>{forecast.dateFormatted}</td>
-              <td>{forecast.temperatureC}</td>
-              <td>{forecast.temperatureF}</td>
-              <td>{forecast.summary}</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    );
-  }
 
-  render() {
-    let contents = this.state.loading
-      ? <p><em>Loading...</em></p>
-      : FetchData.renderForecastsTable(this.state.forecasts);
+    static splitDateTime(dateText, takeDate = true) {
+        let splitIndex = dateText.indexOf('T');
 
-    return (
-      <div>
-        <h1>Weather forecast</h1>
-        <p>This component demonstrates fetching data from the server.</p>
-        {contents}
-      </div>
-    );
-  }
+        if (splitIndex + 1 > dateText.length) {
+            return '';
+        }
+
+        let date = dateText.substring(takeDate ? 0 : splitIndex + 1, takeDate ? splitIndex : dateText.length);
+        return date 
+    }
+
+
+    static renderForecastsTable(matches) {
+        return (
+            <table className='table'>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Home Team</th>
+                        <th>Away Team</th>
+                        <th>Summary</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {matches.map(match => 
+                        <tr key={match.id}>
+                            <td>{FetchData.splitDateTime(match.matchDate)}</td>
+                            <td>{FetchData.splitDateTime(match.matchDate, false)}</td>
+                            <td>{match.homeTeam.name}</td>
+                            <td>{match.awayTeam.name}</td>
+                            <td>{match.homeGoals + " - " + match.awayGoals}</td>
+                        </tr>
+                    )}
+                </tbody>
+            </table>
+        );
+    }
+
+    render() {
+        let contents = this.state.loading
+            ? <p><em>Loading...</em></p>
+            : FetchData.renderForecastsTable(this.state.matches);
+
+        return (
+            <div>
+                <h1>Weather forecast</h1>
+                <p>This component demonstrates fetching data from the server.</p>
+                {contents}
+            </div>
+        );
+    }
 }

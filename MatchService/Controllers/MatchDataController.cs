@@ -47,7 +47,7 @@ namespace MatchService.Controllers
         {
             string rootPath = MatchesJSONFilePath;
 
-            using (StreamReader sr = new StreamReader(System.IO.Path.Combine(rootPath, "matches.json")))
+            using (StreamReader sr = new StreamReader(System.IO.Path.Combine(rootPath, "DataSchema", "matches.json")))
             {
                 string matchJSON = sr.ReadToEnd();
                 this.matches = JsonConvert.DeserializeObject<List<Match>>(matchJSON);
@@ -60,38 +60,17 @@ namespace MatchService.Controllers
         }
 
         [HttpGet("[action]")]
-        public IEnumerable<WeatherForecast> WeatherForecasts()
-        {
-            var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            {
-                DateFormatted = DateTime.Now.AddDays(index).ToString("d"),
-                TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
-            });
-        }
-
-
-        [HttpGet("[action]")]
         public IEnumerable<Match> MatchInfo()
         {
-            return null;
-        }
+            //if(matches.Count < 5)
+            //{
+            //    throw new IndexOutOfRangeException("The matches does not have enough items for the hardcoded 5 fetch");
+            //}
+            IEnumerable<Match> test = matches
+                .Select(match => match)
+                .Where(match => match.HomeTeam == null);
 
-
-        public class WeatherForecast
-        {
-            public string DateFormatted { get; set; }
-            public int TemperatureC { get; set; }
-            public string Summary { get; set; }
-
-            public int TemperatureF
-            {
-                get
-                {
-                    return 32 + (int)(TemperatureC / 0.5556);
-                }
-            }
+            return matches;
         }
     }
 }
