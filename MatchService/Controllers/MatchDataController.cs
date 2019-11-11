@@ -13,11 +13,6 @@ namespace MatchService.Controllers
     [Route("api/[controller]")]
     public class MatchDataController : Controller
     {
-        private static string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
         private IHostingEnvironment hostingEnvironment;
         private List<Match> matches;
 
@@ -50,6 +45,7 @@ namespace MatchService.Controllers
             using (StreamReader sr = new StreamReader(System.IO.Path.Combine(rootPath, "DataSchema", "matches.json")))
             {
                 string matchJSON = sr.ReadToEnd();
+
                 this.matches = JsonConvert.DeserializeObject<List<Match>>(matchJSON);
             }
 
@@ -62,14 +58,6 @@ namespace MatchService.Controllers
         [HttpGet("[action]")]
         public IEnumerable<Match> MatchInfo()
         {
-            //if(matches.Count < 5)
-            //{
-            //    throw new IndexOutOfRangeException("The matches does not have enough items for the hardcoded 5 fetch");
-            //}
-            IEnumerable<Match> test = matches
-                .Select(match => match)
-                .Where(match => match.HomeTeam == null);
-
             return matches;
         }
     }

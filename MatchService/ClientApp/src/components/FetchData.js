@@ -1,11 +1,18 @@
 import React, { Component } from 'react';
 
+class Query {
+    searchQuery = null;
+    fromDate = null;
+    toDate = null;
+}
+
+
 export class FetchData extends Component {
     displayName = FetchData.name
 
     constructor(props) {
         super(props);
-        this.state = { matches: [], loading: true };
+        this.state = { matches: [], loading: true, searchQuery: new Query() };
 
         fetch('api/MatchData/MatchInfo')
             .then(response => response.json())
@@ -15,19 +22,88 @@ export class FetchData extends Component {
     }
 
 
-    static splitDateTime(dateText, takeDate = true) {
-        let splitIndex = dateText.indexOf('T');
+    onFromSearchDateChanged(event) {
+        let fromDate = new Date(event.target.value);
 
-        if (splitIndex + 1 > dateText.length) {
-            return '';
-        }
-
-        let date = dateText.substring(takeDate ? 0 : splitIndex + 1, takeDate ? splitIndex : dateText.length);
-        return date 
+        let queryObject = this.state.searchQuery;
+        queryObject.fromDate = fromDate;
+        this.setState({ searchQuery: queryObject });
     }
 
 
-    static renderForecastsTable(matches) {
+    onToSearchDateChanged(event) {
+        let toDate = new Date(event.target.value);
+        toDate.setHours(23, 59);
+
+        let queryObject = this.state.searchQuery;
+        queryObject.toDate = toDate;
+        this.setState({ searchQuery: queryObject });
+    }
+
+
+    onSearchInput(event) {
+        let search = null;
+        if (event.target.value.length > 0) {
+            search = event.target.value;
+        }
+
+        let queryObject = this.state.searchQuery;
+
+        queryObject.searchQuery = search;
+
+        this.setState({ searchQuery: queryObject });
+    }
+
+
+    static takeDateFromDateTime(dateText) {
+        let result = dateText.match('[^T]*');
+        return result[0];
+    }
+
+
+    static takeTimeFromDateTime(dateText) {
+        let result = dateText.match('(^T)*T[^Z]*');
+        //Getting the T out with regex proved a bit annoying to accomplish compared to the importance
+        return result[0].replace('T', '');
+    }
+
+
+    /**
+     * Since we have to query the whole data anyway, going through data in the front-end makes sense
+     * @param {any} match
+     * @param {any} query
+     */
+    static checkQueryStringWithMatch(match, query) {
+        if (query === null) {
+            return true;
+        }
+
+        let queryAsUpper = query.searchQuery !== null ? query.searchQuery.toUpperCase() : '';
+
+        if (!match.homeTeam.name.toUpperCase().includes(queryAsUpper) &&
+            !match.awayTeam.name.toUpperCase().includes(queryAsUpper)) {
+            return false;
+        }
+
+        let dateInMatch = new Date(match.matchDate);
+
+        if (query.fromDate !== null) {
+            if (dateInMatch - query.fromDate < 0) {
+                return false;
+            }
+        }
+
+        if (query.toDate !== null) {
+            if (dateInMatch - query.toDate > 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    static renderMatchTables(matches, query) {
         return (
             <table className='table'>
                 <thead>
@@ -40,29 +116,55 @@ export class FetchData extends Component {
                     </tr>
                 </thead>
                 <tbody>
-                    {matches.map(match => 
+                    {matches.map(match => FetchData.checkQueryStringWithMatch(match, query) ?
                         <tr key={match.id}>
-                            <td>{FetchData.splitDateTime(match.matchDate)}</td>
-                            <td>{FetchData.splitDateTime(match.matchDate, false)}</td>
+                            <td>{FetchData.takeDateFromDateTime(match.matchDate)}</td>
+                            <td>{FetchData.takeTimeFromDateTime(match.matchDate)}</td>
                             <td>{match.homeTeam.name}</td>
                             <td>{match.awayTeam.name}</td>
                             <td>{match.homeGoals + " - " + match.awayGoals}</td>
                         </tr>
+                        :
+                        null
                     )}
                 </tbody>
             </table>
         );
     }
 
+
+    static renderSearch(bindeable) {
+        return (
+            <form>
+                <label>
+                    Search:
+                        <input type="text" onChange={bindeable.onSearchInput.bind(bindeable)} />
+                </label>
+                <label>
+                    From
+                      <input type="date" onChange={bindeable.onFromSearchDateChanged.bind(bindeable)} />
+                </label>
+                <label>
+                    To
+                    <input type="date" onChange={bindeable.onToSearchDateChanged.bind(bindeable)} />
+                </label>
+            </form>
+        );
+    }
+
+
     render() {
         let contents = this.state.loading
             ? <p><em>Loading...</em></p>
-            : FetchData.renderForecastsTable(this.state.matches);
+            : FetchData.renderMatchTables(this.state.matches, this.state.searchQuery);
+
+        let search = FetchData.renderSearch(this);
 
         return (
             <div>
-                <h1>Weather forecast</h1>
-                <p>This component demonstrates fetching data from the server.</p>
+                <h1>Match database</h1>
+                <p>Search for the games played.</p>
+                {search}
                 {contents}
             </div>
         );
