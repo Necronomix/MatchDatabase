@@ -103,6 +103,11 @@ export class FetchData extends Component {
     }
 
 
+    static renderLogoIfValidUrl(url, classes = '') {
+        return url !== null ? <img src={url} class={classes} width="5%" height="5%" /> : null;
+    }
+
+
     static renderMatchTables(matches, query) {
         return (
             <table className='table'>
@@ -116,12 +121,12 @@ export class FetchData extends Component {
                     </tr>
                 </thead>
                 <tbody>
-                    {matches.map(match => FetchData.checkQueryStringWithMatch(match, query) ?
+                    {matches.map(match => FetchData.checkQueryStringWithMatch(match, query) && match.homeTeam !== null && match.awayTeam !== null ?
                         <tr key={match.id}>
                             <td>{FetchData.takeDateFromDateTime(match.matchDate)}</td>
                             <td>{FetchData.takeTimeFromDateTime(match.matchDate)}</td>
-                            <td>{match.homeTeam.name}</td>
-                            <td>{match.awayTeam.name}</td>
+                            <td>{FetchData.renderLogoIfValidUrl(match.homeTeam.logoUrl)} {match.homeTeam.name}</td>
+                            <td>{FetchData.renderLogoIfValidUrl(match.awayTeam.logoUrl)} {match.awayTeam.name}</td>
                             <td>{match.homeGoals + " - " + match.awayGoals}</td>
                         </tr>
                         :
@@ -134,21 +139,42 @@ export class FetchData extends Component {
 
 
     static renderSearch(bindeable) {
+        const labelClasses = "label label-primary";
+
         return (
             <form>
-                <label>
-                    Search:
-                        <input type="text" onChange={bindeable.onSearchInput.bind(bindeable)} />
-                </label>
-                <label>
-                    From
-                      <input type="date" onChange={bindeable.onFromSearchDateChanged.bind(bindeable)} />
-                </label>
-                <label>
-                    To
-                    <input type="date" onChange={bindeable.onToSearchDateChanged.bind(bindeable)} />
-                </label>
-            </form>
+                <div class="container">
+                    <div class="row" >
+                        <div class="col-md-1">
+                            <label class={labelClasses}>
+                                Search:
+                            </label>
+                        </div>
+                        <div class="col-md-2 mb-3" width="40%">
+                            <input type="text" size="50" onChange={bindeable.onSearchInput.bind(bindeable)} />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-1">
+                            <label width="100%" class={labelClasses}>
+                                From
+                                </label>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="date" onChange={bindeable.onFromSearchDateChanged.bind(bindeable)} />
+                        </div>
+                        <div class="col-md-1">
+                            <label class={labelClasses}>
+                                To
+
+                            </label>
+                        </div>
+                        <div class="col-md-1.5">
+                            <input type="date" onChange={bindeable.onToSearchDateChanged.bind(bindeable)} />
+                        </div>
+                    </div>
+                </div >
+            </form >
         );
     }
 
