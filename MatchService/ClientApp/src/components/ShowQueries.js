@@ -140,6 +140,17 @@ export class ShowQueries extends Component {
     }
 
 
+    static renderQuestionBox(text, bindeable, bindFunction) {
+        return (
+            <div class="col-md-3">
+            <div class="input-group">
+                    <span class="input-group-addon" id="basic-addon1">{text}</span>
+                    <input type="date" class="form-control" placeholder="Date" aria-describedby="basic-addon1" onChange={bindFunction.bind(bindeable)} />
+            </div>
+        </div>)
+    }
+
+
     static renderSearch(bindeable) {
         const labelClasses = "label label-primary";
 
@@ -160,18 +171,8 @@ export class ShowQueries extends Component {
                         </div>
                     </div>
                     <div class="row with-margin-bottom">
-                        <div class="col-md-3">
-                            <div class="input-group">
-                                <span class="input-group-addon" id="basic-addon1">From</span>
-                                <input type="date" class="form-control" placeholder="Username" aria-describedby="basic-addon1" onChange={bindeable.onFromSearchDateChanged.bind(bindeable)} />
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="input-group">
-                                <span class="input-group-addon" id="basic-addon1">To</span>
-                                <input type="date" class="form-control" placeholder="Username" aria-describedby="basic-addon1" onChange={bindeable.onToSearchDateChanged.bind(bindeable)} />
-                            </div>
-                        </div>
+                        {ShowQueries.renderQuestionBox('From', bindeable, bindeable.onFromSearchDateChanged)}
+                        {ShowQueries.renderQuestionBox('To', bindeable, bindeable.onToSearchDateChanged)}
                     </div>
                 </div >
             </form >
