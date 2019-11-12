@@ -3,4 +3,17 @@
     body {
         padding-top: 50px;
     }
+
+
+}
+
+
+.with-margin-bottom {
+    margin-bottom: 10px;
+}
+
+
+.container {
+    margin-left: 0;
+    margin-right: auto;
 }

@@ -7,8 +7,8 @@ class Query {
 }
 
 
-export class FetchData extends Component {
-    displayName = FetchData.name
+export class ShowQueries extends Component {
+    displayName = ShowQueries.name
 
     constructor(props) {
         super(props);
@@ -121,13 +121,15 @@ export class FetchData extends Component {
                     </tr>
                 </thead>
                 <tbody>
-                    {matches.map(match => FetchData.checkQueryStringWithMatch(match, query) && match.homeTeam !== null && match.awayTeam !== null ?
+                    {matches.map(match => ShowQueries.checkQueryStringWithMatch(match, query) && match.homeTeam !== null && match.awayTeam !== null ?
                         <tr key={match.id}>
-                            <td>{FetchData.takeDateFromDateTime(match.matchDate)}</td>
-                            <td>{FetchData.takeTimeFromDateTime(match.matchDate)}</td>
-                            <td>{FetchData.renderLogoIfValidUrl(match.homeTeam.logoUrl)} {match.homeTeam.name}</td>
-                            <td>{FetchData.renderLogoIfValidUrl(match.awayTeam.logoUrl)} {match.awayTeam.name}</td>
-                            <td>{match.homeGoals + " - " + match.awayGoals}</td>
+                            
+                            <td><a href="/showmatch">{ShowQueries.takeDateFromDateTime(match.matchDate)}</a></td>
+                            <td>{ShowQueries.takeTimeFromDateTime(match.matchDate)}</td>
+                            <td>{ShowQueries.renderLogoIfValidUrl(match.homeTeam.logoUrl)} {match.homeTeam.name}</td>
+                            <td>{ShowQueries.renderLogoIfValidUrl(match.awayTeam.logoUrl)} {match.awayTeam.name}</td>
+                                <td>{match.homeGoals + " - " + match.awayGoals}</td>
+                            
                         </tr>
                         :
                         null
@@ -144,33 +146,31 @@ export class FetchData extends Component {
         return (
             <form>
                 <div class="container">
-                    <div class="row" >
-                        <div class="col-md-1">
-                            <label class={labelClasses}>
-                                Search:
-                            </label>
-                        </div>
-                        <div class="col-md-2 mb-3" width="40%">
-                            <input type="text" size="50" onChange={bindeable.onSearchInput.bind(bindeable)} />
+                    <div class="row with-margin-bottom">
+                        <div class="col-md-6">
+                            <p>Search for the games played.</p>
+                            </div>
+                    </div>
+                    <div class="row with-margin-bottom" >
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <span class="input-group-addon" id="basic-addon1">Search</span>
+                                <input type="text" class="form-control" placeholder="Username" aria-describedby="basic-addon1" size="50" onChange={bindeable.onSearchInput.bind(bindeable)} />
+                            </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-1">
-                            <label width="100%" class={labelClasses}>
-                                From
-                                </label>
+                    <div class="row with-margin-bottom">
+                        <div class="col-md-3">
+                            <div class="input-group">
+                                <span class="input-group-addon" id="basic-addon1">From</span>
+                                <input type="date" class="form-control" placeholder="Username" aria-describedby="basic-addon1" onChange={bindeable.onFromSearchDateChanged.bind(bindeable)} />
+                            </div>
                         </div>
-                        <div class="col-md-2">
-                            <input type="date" onChange={bindeable.onFromSearchDateChanged.bind(bindeable)} />
-                        </div>
-                        <div class="col-md-1">
-                            <label class={labelClasses}>
-                                To
-
-                            </label>
-                        </div>
-                        <div class="col-md-1.5">
-                            <input type="date" onChange={bindeable.onToSearchDateChanged.bind(bindeable)} />
+                        <div class="col-md-3">
+                            <div class="input-group">
+                                <span class="input-group-addon" id="basic-addon1">To</span>
+                                <input type="date" class="form-control" placeholder="Username" aria-describedby="basic-addon1" onChange={bindeable.onToSearchDateChanged.bind(bindeable)} />
+                            </div>
                         </div>
                     </div>
                 </div >
@@ -182,14 +182,13 @@ export class FetchData extends Component {
     render() {
         let contents = this.state.loading
             ? <p><em>Loading...</em></p>
-            : FetchData.renderMatchTables(this.state.matches, this.state.searchQuery);
+            : ShowQueries.renderMatchTables(this.state.matches, this.state.searchQuery);
 
-        let search = FetchData.renderSearch(this);
+        let search = ShowQueries.renderSearch(this);
 
         return (
             <div>
                 <h1>Match database</h1>
-                <p>Search for the games played.</p>
                 {search}
                 {contents}
             </div>
