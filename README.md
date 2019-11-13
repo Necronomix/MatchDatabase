@@ -17,9 +17,13 @@ Since it was a requirement that all of the items are shown, I figured that the b
 
 I also wanted to implement an additional page since the React template has a lot of things implemented, unfortunately there was not that much interesting data to showcase about the singular matches and the events that happen in them would require some additional knowledge of how the matches are displayed.
 
+Most of the work is done in the MatchDataController class, DataSchema folder and in frontend on the ShowQueries and ShowMatch classes.
+
+
 Time spent on the project:
-Monday 5:00
-Tuesday 2:25
-Wednesday 3:10
+
+ - Monday 5:00
+ - Tuesday 2:25
+ - Wednesday 3:10
 
 Totalling 10:45
