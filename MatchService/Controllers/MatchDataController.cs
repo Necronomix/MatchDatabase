@@ -58,11 +58,10 @@ namespace MatchService.Controllers
         }
 
 
-        private void CheckMatches()
+        private void CheckMatchIntegrity()
         {
             if (matches == null)
             {
-                //TODO: better error handling
                 throw new System.Web.Http.HttpResponseException(HttpStatusCode.InternalServerError);
             }
         }
@@ -71,7 +70,7 @@ namespace MatchService.Controllers
         [HttpGet("[action]")]
         public IEnumerable<Match> MatchInfo()
         {
-            CheckMatches();
+            CheckMatchIntegrity();
 
             return matches;
         }
@@ -79,7 +78,7 @@ namespace MatchService.Controllers
         [HttpGet("[action]")]
         public Match SingleMatch(int id)
         {
-            CheckMatches();
+            CheckMatchIntegrity();
 
             IEnumerable<Match> results = matches.Where(match => match.Id == id);
             if(results.Count() == 0)

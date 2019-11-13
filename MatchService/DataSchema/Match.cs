@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace MatchService.DataSchema
 {
-    //Schema created with http://json2csharp.com/
+   
     public class HomeTeam
     {
         public int Id { get; set; }
@@ -49,7 +49,10 @@ namespace MatchService.DataSchema
         public object Score { get; set; }
         public bool IsGoal { get; set; }
     }
-
+    /// <summary>
+    /// Schema base created with http://json2csharp.com/
+    /// Minor changes made for example DateTime made nullable
+    /// </summary>
     public class Match
     {
         public int Id { get; set; }

@@ -152,7 +152,6 @@ export class ShowQueries extends Component {
 
 
     static renderSearch(bindeable) {
-        //TODO: fix DOM problem with the third div "Warning: Invalid DOM property `class`. Did you mean `className`".
         return (
             <form>
                 <div className="container">

@@ -67,9 +67,6 @@ export class ShowMatch extends Component {
                 {ShowMatch.renderLogos(match)}
                 {ShowMatch.renderScores(match)}
                 <hr />
-                //This page is mostly here to showcase the ability to do additional, parametrized query from the data
-                <br/>
-                //Data in the matches was not really worthwhile to showcase to the end user
             </div >
         );
     }
