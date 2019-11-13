@@ -7,6 +7,8 @@ using MatchService.DataSchema;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
 using Newtonsoft.Json;
+using System.Net.Http;
+using System.Net;
 
 namespace MatchService.Controllers
 {
@@ -55,23 +57,37 @@ namespace MatchService.Controllers
             }
         }
 
+
+        private void CheckMatches()
+        {
+            if (matches == null)
+            {
+                //TODO: better error handling
+                throw new System.Web.Http.HttpResponseException(HttpStatusCode.InternalServerError);
+            }
+        }
+
+
         [HttpGet("[action]")]
         public IEnumerable<Match> MatchInfo()
         {
+            CheckMatches();
+
             return matches;
         }
 
         [HttpGet("[action]")]
         public Match SingleMatch(int id)
         {
-            if(matches == null)
+            CheckMatches();
+
+            IEnumerable<Match> results = matches.Where(match => match.Id == id);
+            if(results.Count() == 0)
             {
-                //TODO: better error handling
-                return null;
+                throw new System.Web.Http.HttpResponseException(HttpStatusCode.NotFound);
             }
 
-
-            return matches.Where(match => match.Id == id).Single();
+            return results.Single();
         }
 
     }
