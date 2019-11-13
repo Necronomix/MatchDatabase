@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { ShowMatch } from './ShowMatch';
+import { HelperFunctions } from './HelperFunctions';
 
 class Query {
     searchQuery = null;
@@ -12,13 +14,26 @@ export class ShowQueries extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { matches: [], loading: true, searchQuery: new Query() };
+        this.state = { matches: [], selectedMatch: false, loading: true, searchQuery: new Query() };
 
         fetch('api/MatchData/MatchInfo')
             .then(response => response.json())
             .then(data => {
                 this.setState({ matches: data, loading: false });
             });
+    }
+
+    resetSelectedMatch() {
+        this.setState({ selectedMatch: null });
+    }
+
+
+    selectMatchId(id) {
+        fetch('api/MatchData/SingleMatch?id=' + id)
+            .then(response => response.json())
+            .then(data => {
+                this.setState({ selectedMatch: data });
+            })
     }
 
 
@@ -52,19 +67,6 @@ export class ShowQueries extends Component {
         queryObject.searchQuery = search;
 
         this.setState({ searchQuery: queryObject });
-    }
-
-
-    static takeDateFromDateTime(dateText) {
-        let result = dateText.match('[^T]*');
-        return result[0];
-    }
-
-
-    static takeTimeFromDateTime(dateText) {
-        let result = dateText.match('(^T)*T[^Z]*');
-        //Getting the T out with regex proved a bit annoying to accomplish compared to the importance
-        return result[0].replace('T', '');
     }
 
 
@@ -103,12 +105,11 @@ export class ShowQueries extends Component {
     }
 
 
-    static renderLogoIfValidUrl(url, classes = '') {
-        return url !== null ? <img src={url} class={classes} width="5%" height="5%" /> : null;
-    }
 
 
-    static renderMatchTables(matches, query) {
+
+    renderMatchTables(matches, query) {
+        let eventHandlerClass = this;
         return (
             <table className='table'>
                 <thead>
@@ -123,13 +124,12 @@ export class ShowQueries extends Component {
                 <tbody>
                     {matches.map(match => ShowQueries.checkQueryStringWithMatch(match, query) && match.homeTeam !== null && match.awayTeam !== null ?
                         <tr key={match.id}>
-                            
-                            <td><a href="/showmatch">{ShowQueries.takeDateFromDateTime(match.matchDate)}</a></td>
-                            <td>{ShowQueries.takeTimeFromDateTime(match.matchDate)}</td>
-                            <td>{ShowQueries.renderLogoIfValidUrl(match.homeTeam.logoUrl)} {match.homeTeam.name}</td>
-                            <td>{ShowQueries.renderLogoIfValidUrl(match.awayTeam.logoUrl)} {match.awayTeam.name}</td>
-                                <td>{match.homeGoals + " - " + match.awayGoals}</td>
-                            
+                            <td><a onClick={eventHandlerClass.selectMatchId.bind(this, match.id)}>{HelperFunctions.takeDateFromDateTime(match.matchDate)}</a></td>
+                            <td>{HelperFunctions.takeTimeFromDateTime(match.matchDate)}</td>
+                            <td>{HelperFunctions.renderLogoIfValidUrl(match.homeTeam.logoUrl)} {match.homeTeam.name}</td>
+                            <td>{HelperFunctions.renderLogoIfValidUrl(match.awayTeam.logoUrl)} {match.awayTeam.name}</td>
+                            <td>{match.homeGoals + " - " + match.awayGoals}</td>
+
                         </tr>
                         :
                         null
@@ -142,35 +142,34 @@ export class ShowQueries extends Component {
 
     static renderQuestionBox(text, bindeable, bindFunction) {
         return (
-            <div class="col-md-3">
-            <div class="input-group">
-                    <span class="input-group-addon" id="basic-addon1">{text}</span>
-                    <input type="date" class="form-control" placeholder="Date" aria-describedby="basic-addon1" onChange={bindFunction.bind(bindeable)} />
-            </div>
-        </div>)
+            <div className="col-md-3">
+                <div className="input-group">
+                    <span className="input-group-addon" id="basic-addon1">{text}</span>
+                    <input type="date" className="form-control" placeholder="Date" aria-describedby="basic-addon1" onChange={bindFunction.bind(bindeable)} />
+                </div>
+            </div>)
     }
 
 
     static renderSearch(bindeable) {
-        const labelClasses = "label label-primary";
-
+        //TODO: fix DOM problem with the third div "Warning: Invalid DOM property `class`. Did you mean `className`".
         return (
             <form>
-                <div class="container">
-                    <div class="row with-margin-bottom">
-                        <div class="col-md-6">
+                <div className="container">
+                    <div className="row with-margin-bottom">
+                        <div className="col-md-6">
                             <p>Search for the games played.</p>
-                            </div>
+                        </div>
                     </div>
-                    <div class="row with-margin-bottom" >
-                        <div class="col-md-6">
-                            <div class="input-group">
-                                <span class="input-group-addon" id="basic-addon1">Search</span>
-                                <input type="text" class="form-control" placeholder="Username" aria-describedby="basic-addon1" size="50" onChange={bindeable.onSearchInput.bind(bindeable)} />
+                    <div className="row with-margin-bottom" >
+                        <div className="col-md-6">
+                            <div className="input-group">
+                                <span className="input-group-addon" id="basic-addon1">Search</span>
+                                <input type="text" className="form-control" placeholder="Username" aria-describedby="basic-addon1" size="50" onChange={bindeable.onSearchInput.bind(bindeable)} />
                             </div>
                         </div>
                     </div>
-                    <div class="row with-margin-bottom">
+                    <div className="row with-margin-bottom">
                         {ShowQueries.renderQuestionBox('From', bindeable, bindeable.onFromSearchDateChanged)}
                         {ShowQueries.renderQuestionBox('To', bindeable, bindeable.onToSearchDateChanged)}
                     </div>
@@ -180,18 +179,29 @@ export class ShowQueries extends Component {
     }
 
 
-    render() {
+    renderMatches() {
         let contents = this.state.loading
             ? <p><em>Loading...</em></p>
-            : ShowQueries.renderMatchTables(this.state.matches, this.state.searchQuery);
+            : this.renderMatchTables(this.state.matches, this.state.searchQuery);
 
         let search = ShowQueries.renderSearch(this);
+
+        return (<React.Fragment>{search} {contents}</React.Fragment>);
+    }
+
+
+    renderShowMatch() {
+        return (<ShowMatch onMatchClosed={this.resetSelectedMatch.bind(this)} match={this.state.selectedMatch} />);
+    }
+
+
+    render() {
+        let window = this.state.selectedMatch ? this.renderShowMatch() : this.renderMatches();
 
         return (
             <div>
                 <h1>Match database</h1>
-                {search}
-                {contents}
+                {window}
             </div>
         );
     }

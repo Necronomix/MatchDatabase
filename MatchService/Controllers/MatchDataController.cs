@@ -60,5 +60,19 @@ namespace MatchService.Controllers
         {
             return matches;
         }
+
+        [HttpGet("[action]")]
+        public Match SingleMatch(int id)
+        {
+            if(matches == null)
+            {
+                //TODO: better error handling
+                return null;
+            }
+
+
+            return matches.Where(match => match.Id == id).Single();
+        }
+
     }
 }

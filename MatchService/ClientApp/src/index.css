@@ -17,3 +17,11 @@
     margin-left: 0;
     margin-right: auto;
 }
+
+.huge-text {
+    font-size: 220%;
+}
+
+.min-width-20 {
+    min-width: 20px;
+}
